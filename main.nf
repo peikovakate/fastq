@@ -2,7 +2,6 @@
 
 def helpMessage(){
     log.info "help message"
-
 }
 
 if (params.help) {
@@ -10,70 +9,70 @@ if (params.help) {
     exit 0
 }
 
-params.fastq_pair_1 = "/home/peikova/thesis/fastq/data/ERR204864_1.fastq.gz"
-params.fastq_pair_2 = "/home/peikova/thesis/fastq/data/ERR204864_2.fastq.gz"
-params.hisat2_index = "/home/peikova/thesis/fastq/data/index/Homo_sapiens.GRCh38.dna.primary_assembly"
-params.fa_ref = "/home/peikova/thesis/fastq/data/index/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
-
 hs2_indices = Channel.fromPath("${params.hisat2_index}*")
     .ifEmpty { exit 1, "HISAT2 index not found: ${params.hisat2_index}" }
 
+Channel.fromPath(params.samples_path)
+    .ifEmpty { error "Cannot find any samples_path file in: ${params.samples_path}" }
+    .splitCsv(header: false, sep: '\t', strip: true)
+    .map{row -> [ row[0], row[1] , row[2] ]}
+    .set { align_fastq } 
+
 process alignWithHisat2 {
     input: 
-    path "read_1.fastq.gz" from params.fastq_pair_1
-    path "read_2.fastq.gz" from params.fastq_pair_2
     file hs2_indices from hs2_indices.collect()
+    tuple val(sample), path(read_1), path(read_2) from align_fastq
 
     output:
-    path "aligned.bam" into aligned_bam
+    tuple val(sample), path("${sample}.bam") into aligned_bam
     
     script:
     index_base = hs2_indices[0].toString() - ~/.\d.ht2/
 
     """
-    hisat2 -x $index_base -1 read_1.fastq.gz -2 read_2.fastq.gz -u 100 \\
-        | samtools view -bS -F 4 -F 256 - > aligned.bam
+    hisat2 -x ${index_base} -1 ${read_1} -2 ${read_2} -u 100 \\
+        | samtools view -bS -F 4 -F 256 - > ${sample}.bam
     """
 
 }
 
 process sortBam {
     input:
-    path "aligned.bam" from aligned_bam
+    tuple val(sample), path(aligned) from aligned_bam
 
     output:
-    path "sorted.bam" into bin_scores
+    tuple val(sample), path("${sample}_sorted.bam") into bin_scores
 
     """
-    samtools sort aligned.bam -O bam -o sorted.bam
+    samtools sort ${aligned} -O bam -o ${sample}_sorted.bam
     """
 }
 
 process binScores {
     input:
-    path "sorted.bam" from bin_scores
+    tuple val(sample), path(sorted) from bin_scores
 
     output:
-    path "qualbin.bam" into to_cram
+    tuple val(sample), path("${sample}_qualbin.bam") into to_cram
 
     """
-    htsbox qualbin -m 3 -b sorted.bam > qualbin.bam
+    htsbox qualbin -m 3 -b ${sorted} > ${sample}_qualbin.bam
     """
 }
 
 
 process bamToCram {
-    publishDir "$launchDir/result", mode: "copy"
+    publishDir "${params.outdir}", mode: "copy"
 
     input:
-    path "qualbin.bam" from to_cram
+    tuple val(sample), path(qualbin) from to_cram
     path "ref.fa" from params.fa_ref
 
     output:
-    path "file.cram"
+    path "${sample}.cram"
 
     script:
     """
-    samtools view qualbin.bam -C -T ref.fa > file.cram
+    samtools view ${qualbin} -C -T ref.fa > ${sample}.cram
     """
 }

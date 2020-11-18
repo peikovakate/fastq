@@ -2,15 +2,15 @@
 
 **Compress fastq files**.
 
-[![GitHub Actions CI Status](https://github.com/nf-core/fastq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/fastq/actions)
-[![GitHub Actions Linting Status](https://github.com/nf-core/fastq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/fastq/actions)
+[![GitHub Actions CI Status](https://github.com/peikovakate/fastq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/fastq/actions)
+[![GitHub Actions Linting Status](https://github.com/peikovakate/fastq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/fastq/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/fastq.svg)](https://hub.docker.com/r/nfcore/fastq)
+[![Docker](https://img.shields.io/docker/automated/peikova/fastq.svg)](https://hub.docker.com/r/peikova/fastq)
 
 ## Introduction
-
+ 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 ## Quick Start
@@ -32,7 +32,7 @@ iv. Start running your own analysis!
 <!-- TODO nf-core: Update the default command above used to run the pipeline -->
 
 ```bash
-nextflow run nf-core/fastq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
+nextflow run nf-core/fastq -profile <docker/singularity/conda/institute> 
 ```
 
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
