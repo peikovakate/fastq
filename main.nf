@@ -18,7 +18,10 @@ Channel.fromPath(params.samples_path)
     .map{row -> [ row[0], row[1] , row[2] ]}
     .set { align_fastq } 
 
-process alignWithHisat2 {
+process alignWithHisat2 { 
+    // increased resources requirements
+    // label "process_low"
+
     input: 
     file hs2_indices from hs2_indices.collect()
     tuple val(sample), path(read_1), path(read_2) from align_fastq
@@ -30,8 +33,8 @@ process alignWithHisat2 {
     index_base = hs2_indices[0].toString() - ~/.\d.ht2/
 
     """
-    hisat2 -x ${index_base} -1 ${read_1} -2 ${read_2} -u 100 \\
-        | samtools view -bS -F 4 -F 256 - > ${sample}.bam
+    hisat2 -x ${index_base} -1 ${read_1} -2 ${read_2} \\
+        | samtools view -b > ${sample}.bam
     """
 
 }
