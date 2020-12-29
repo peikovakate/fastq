@@ -19,9 +19,6 @@ Channel.fromPath(params.samples_path)
     .set { align_fastq } 
 
 process alignWithHisat2 { 
-    // increased resources requirements
-    // label "process_low"
-
     input: 
     file hs2_indices from hs2_indices.collect()
     tuple val(sample), path(read_1), path(read_2) from align_fastq
@@ -58,6 +55,7 @@ process binScores {
     output:
     tuple val(sample), path("${sample}_qualbin.bam") into to_cram
 
+    // -m parameter defines number of bins
     """
     htsbox qualbin -m 3 -b ${sorted} > ${sample}_qualbin.bam
     """
