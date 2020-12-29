@@ -57,7 +57,7 @@ process binScores {
 
     // -m parameter defines number of bins
     """
-    htsbox qualbin -m 3 -b ${sorted} > ${sample}_qualbin.bam
+    htsbox qualbin -m ${params.bin_number} -b ${sorted} > ${sample}_qualbin.bam
     """
 }
 

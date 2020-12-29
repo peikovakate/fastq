@@ -11,6 +11,9 @@ Path to reference fa file.
 #### `--samples_path`
 TSV file with 3 columns: sample name, fastq first and fastq second reads. (Example: `data/geuvadis_eur_reads.tsv`)
 
+#### `--bin_number`
+Number of bins to reduce confidence. Default is 3.
+
 
 ## How to run
 
